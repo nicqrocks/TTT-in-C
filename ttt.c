@@ -17,12 +17,13 @@
 #include <stdio.h>
 
 //Make some prototypes
-int askContinue();
+int askYN();
 void displayBoard(int [3][3]);
 char getLetter(int);
 int * selectLoc(int [3][3]);
 void setTurn(int *, int);
 int checkForWin(int [3][3]);
+int * runAI(int [3][3]);  //Prototype for the AI
 
 
 int main() {
@@ -35,11 +36,16 @@ int main() {
 	printf("left corner of the grid and 'C3' would be the lower bottom corner.\n\n");
 	
 	
-	//While the user wants to continue, start the game.
+	//While the user wants to continue, start the game (again).
 	do {
 		//Make some vars
 		int winner = 0;
 		int grid[3][3] = { {0, 0, 0}, {0, 0, 0}, {0, 0, 0} };
+		int enableAI = 0;
+		
+		//Ask the user if they want to go against the AI.
+		printf("Do you want to go against the AI? ('y' or 'n')\n");
+		enableAI = askYN();
 		
 		//There can only be nine rounds of the game before there are no more
 		//spaces left to go to.
@@ -50,15 +56,21 @@ int main() {
 			//Show the grid to the players.
 			displayBoard(grid);
 			
-			//Ask the user what position they would like to mark.
-			printf("Player %c: ", getLetter(i % 2 + 1));
-			gridPtr = selectLoc(grid);
-			
-			//Make sure that the space is empty.
-			while (*gridPtr) {
-				printf("This space has already been used, please choose another.\n");
+			if (enableAI) {
+				//Run the AI and get the pointer that it returns.
+				gridPtr = runAI();
+			}
+			else {
+				//Ask the user what position they would like to mark.
 				printf("Player %c: ", getLetter(i % 2 + 1));
 				gridPtr = selectLoc(grid);
+			
+				//Make sure that the space is empty.
+				while (*gridPtr) {
+					printf("This space has already been used, please choose another.\n");
+					printf("Player %c: ", getLetter(i % 2 + 1));
+					gridPtr = selectLoc(grid);
+				}
 			}
 			
 			//Set the space in the grid to that player's value.
@@ -82,7 +94,9 @@ int main() {
 			printf("No one has won this game.\n");
 		}
 		
-	} while (askContinue());
+		//Ask if the players want to play again.
+		printf("\nWould you like to play again? ('y' or 'n')\n");
+	} while (askYN());
 	
 	
 	//Say something dumb.
@@ -93,13 +107,12 @@ int main() {
 
 
 //Ask the user if they would like to continue to play.
-int askContinue() {
+int askYN() {
 	//Make a var to hold the answer.
 	char ans;
 	
 	while (42) {
 		//Get the answer from the user.
-		printf("\nWould you like to play again? ('y' or 'n')\n");
 		scanf("\n%c", &ans);
 		
 		switch (ans) {
