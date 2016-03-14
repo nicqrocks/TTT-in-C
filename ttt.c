@@ -24,6 +24,8 @@ int * selectLoc(int [3][3]);
 void setTurn(int *, int);
 int checkForWin(int [3][3]);
 int * runAI(int [3][3]);  //Prototype for the AI
+void checkLine(int *, int *, int *, int **, int **);
+	
 
 
 int main() {
@@ -56,9 +58,9 @@ int main() {
 			//Show the grid to the players.
 			displayBoard(grid);
 			
-			if (enableAI) {
+			if ( enableAI && ((i % 2 + 1) == 2) ) {
 				//Run the AI and get the pointer that it returns.
-				gridPtr = runAI();
+				gridPtr = runAI(grid);
 			}
 			else {
 				//Ask the user what position they would like to mark.
@@ -251,3 +253,131 @@ int checkForWin(int grid[3][3]) {
 	//Return 0 as the default if no match is found.
 	return 0;
 }
+
+
+//Function for the AI.
+int * runAI(int grid[3][3]) {
+	//Make some vars
+	int *defense = 0;
+	int *offense = 0;
+	
+	//Show the AI is running and display progress by displaying a dot after each
+	//step.
+	printf("\nThinking\n.");
+	
+	//Check each possible direction. The logic of the AI should be to:
+	//	1. Place a winning move if found.
+	//	2. Block the player if they are going to win.
+	//	3. Get a corner position if possible.
+	//	4. Choose a misc spot.
+	
+	//Check the horozontal lines.
+	for (int x = 0; x < 3; ++x) {
+		//Check for an opening.
+		checkLine(&grid[x][0], &grid[x][1], &grid[x][2], &offense, &defense);
+	}
+	//Check vertical lines.
+	for (int y = 0; y < 3; ++y) {
+		//Check for an opening.
+		checkLine(&grid[0][y], &grid[1][y], &grid[2][y], &offense, &defense);
+	}
+	//Check horizontal lines.
+	checkLine(&grid[0][0], &grid[1][1], &grid[2][2], &offense, &defense);
+	checkLine(&grid[0][2], &grid[1][1], &grid[2][0], &offense, &defense);
+	
+	//Check if the offense or defense is found, and return it.
+	if (offense != 0) {
+		return offense;
+	}
+	else if (defense != 0) {
+		return defense;
+	}
+	
+	
+	//If the program has made it this far, then choose a corner and
+	//make sure that it is open.
+	if (! grid[0][0]) {
+		return &grid[0][0];
+	}
+	else if (! grid[2][2]) {
+		return &grid[2][2];
+	}
+	else if (! grid[0][2]) {
+		return &grid[0][2];
+	}
+	else {
+		return &grid[2][0];
+	}
+	
+	
+	//At this point, just choose something.
+	for (int x = 0; x < 2; ++x) {
+		for (int y = 0; y < 2; ++y) {
+			if (! grid[x][y]) {
+				return &grid[x][y];
+			}
+		}
+	}
+}
+
+
+//Function to check for an interesting point on the line given.
+void checkLine(int *p1, int *p2, int *p3, int **offence, int **defence) {
+	//Make some vars
+	int sum = *p1 + *p2 + *p3;
+	
+	//Determine if this line is interesting at all.
+	if (sum == 4) {
+		//If the sum of the line is 4, this means that there has to be
+		//two spaces occupied by player 2. Due to the way this is writen,
+		//the AI is always player two. This means that the AI can use
+		//The blank spot on this line to win the game.
+		
+		//Find the empty space.
+		int *emptySpace = p1;
+		if (! *p2) {
+			emptySpace = p2;
+		}
+		else {
+			emptySpace = p3;
+		}
+		
+		//This is an offensive move.
+		*offence = emptySpace;
+	}
+	else if (sum == 2) {
+		//This one is less straight forward than the previous in that,
+		//this can be player 1 about to win, or player 2 has made one
+		//mark on this line.
+		
+		//Figure out how many empty spaces are on this line.
+		int *emptySpace = p1;
+		int num = 0;
+		if (! *p1) {
+			emptySpace = p1;
+			++num;
+		}
+		if (! *p2) {
+			emptySpace = p2;
+			++num;
+		}
+		if (! *p3) {
+			emptySpace = p3;
+			++num;
+		}
+		
+		//If there is only one blank spot in the line, then go there.
+		//Otherwise, just ignore it.
+		if (num == 1) {
+			//This is a defensive move.
+			*defence = emptySpace;
+		}
+	}
+	else {
+		//This line is pretty uninteresting.
+	}
+	
+	//Print out a dot to show progress to the user.
+	printf(".");
+}
+
