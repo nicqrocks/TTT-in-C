@@ -263,7 +263,7 @@ int * runAI(int grid[3][3]) {
 	
 	//Show the AI is running and display progress by displaying a dot after each
 	//step.
-	printf("\nThinking\n.");
+	printf("\nThinking.");
 	
 	//Check each possible direction. The logic of the AI should be to:
 	//	1. Place a winning move if found.
@@ -334,16 +334,25 @@ void checkLine(int *p1, int *p2, int *p3, int **offence, int **defence) {
 		//The blank spot on this line to win the game.
 		
 		//Find the empty space.
-		int *emptySpace = p1;
+		int *emptySpace;
+		int num = 0;
+		if (! *p1) {
+			emptySpace = p1;
+			++num;
+		}
 		if (! *p2) {
 			emptySpace = p2;
+			++num;
 		}
-		else {
+		if (! *p3) {
 			emptySpace = p3;
+			++num;
 		}
 		
-		//This is an offensive move.
-		*offence = emptySpace;
+		if (num == 1) {
+			//This is an offensive move.
+			*offence = emptySpace;
+		}
 	}
 	else if (sum == 2) {
 		//This one is less straight forward than the previous in that,
@@ -351,7 +360,7 @@ void checkLine(int *p1, int *p2, int *p3, int **offence, int **defence) {
 		//mark on this line.
 		
 		//Figure out how many empty spaces are on this line.
-		int *emptySpace = p1;
+		int *emptySpace;
 		int num = 0;
 		if (! *p1) {
 			emptySpace = p1;
