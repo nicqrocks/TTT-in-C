@@ -305,7 +305,7 @@ int * runAI(int grid[3][3]) {
 	else if (! grid[0][2]) {
 		return &grid[0][2];
 	}
-	else {
+	else if (! grid[2][0]) {
 		return &grid[2][0];
 	}
 	
